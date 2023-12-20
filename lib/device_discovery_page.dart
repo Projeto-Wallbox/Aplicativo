@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:dart_ping/dart_ping.dart';
+import 'package:network_discovery/network_discovery.dart';
 import 'login_page.dart';
 
 class DeviceDiscoveryPage extends StatefulWidget {
@@ -12,26 +12,37 @@ class DeviceDiscoveryPage extends StatefulWidget {
 
 class _DeviceDiscoveryPageState extends State<DeviceDiscoveryPage> {
   final List<String> devices = [];
+  bool searching = false;
+
+  Future<String?> getSubnet() async {
+    final String deviceIP = await NetworkDiscovery.discoverDeviceIpAddress();
+
+    if (deviceIP.isNotEmpty) {
+      return deviceIP.substring(0, deviceIP.lastIndexOf('.'));
+    } else {
+      return null;
+    }
+  }
 
   Future<void> discoverDevices() async {
-    final List<String> localDevices = [];
-
-    const String subnet = '192.168.0'; // Update with your subnet
-
-    for (int i = 1; i <= 255; i++) {
-      final String host = '$subnet.$i';
-      final Ping ping = Ping(host, count: 1);
-      ping.stream.listen((event) {
-        final result = event.response;
-        // if (result.) {
-        //   localDevices.add(host);
-        //   setState(() {
-        //     devices.clear();
-        //     devices.addAll(localDevices);
-        //   });
-        // }
-        print(result);
-      });
+    if (searching) return;
+    searching = true;
+    setState(() {
+      devices.clear();
+    });
+    final String? subnet = await getSubnet();
+    if (subnet != null) {
+      final stream = NetworkDiscovery.discoverAllPingableDevices(subnet);
+      final List<String> localDevices = [];
+      stream.listen((HostActive host) {
+        if (host.isActive) {
+          localDevices.add(host.ip);
+          setState(() {
+            devices.clear();
+            devices.addAll(localDevices);
+          });
+        }
+      }).onDone(() => searching = false);
     }
   }
 
@@ -46,6 +57,14 @@ class _DeviceDiscoveryPageState extends State<DeviceDiscoveryPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Device Discovery'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () {
+              discoverDevices();
+            },
+          ),
+        ],
       ),
       body: ListView.builder(
         itemCount: devices.length,

@@ -14,10 +14,12 @@ class MyApp extends StatelessWidget {
       create: (context) => LightController(),
       child: MaterialApp(
         title: 'Flutter Light App',
+        home: const DeviceDiscoveryPage(),
         theme: ThemeData(
-          primarySwatch: Colors.blue,
+          primaryColor: Colors.blue,
+          secondaryHeaderColor: Colors.orange,
+          fontFamily: 'Roboto',
         ),
-        home: DeviceDiscoveryPage(),
       ),
     );
   }
