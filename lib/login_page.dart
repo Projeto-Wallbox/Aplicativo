@@ -1,13 +1,16 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'home_page.dart';
+import 'package:wallbox_app/home_page.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 class LoginPage extends StatefulWidget {
   final String deviceIP;
 
-  LoginPage({required this.deviceIP});
+  const LoginPage({super.key, required this.deviceIP});
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
@@ -15,24 +18,67 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
   String _errorMessage = '';
 
+  late WebSocketChannel _channel;
+
+  void startChannel(context) async {
+    final wsUrl = Uri.parse('ws://${widget.deviceIP}');
+    //final wsUrl = Uri.parse('ws://localhost:8765');
+    _channel = WebSocketChannel.connect(wsUrl);
+    _channel.ready.then((value) {
+      _channel.stream.listen((message) {
+        final data = jsonDecode(message);
+        if (data.type == "userAuthResponse" && data.status == "Ok") {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HomePage(),
+            ),
+          );
+        } else {
+          setState(() {
+            _errorMessage = 'Usuário ou senha inválidos';
+          });
+        }
+      });
+    }).onError((error, stackTrace) {
+      Navigator.popUntil(
+        context,
+        (route) => route.isFirst,
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Erro ao estabelecer uma conexão!')));
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => startChannel(context));
+  }
+
+  @override
+  void dispose() {
+    _channel.sink.close();
+    super.dispose();
+  }
+
   void _login(BuildContext context) {
     // Lógica de login aqui (pode ser implementada posteriormente)
     String username = _usernameController.text;
     String password = _passwordController.text;
 
-    // Exemplo de lógica de login simples
-    if (username == "user" && password == "password") {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => HomePage(),
-        ),
-      );
-    } else {
-      setState(() {
-        _errorMessage = 'Usuário ou senha inválidos';
-      });
-    }
+    // Criar um mapa com dados do usuário
+    Map<String, dynamic> userData = {
+      'type': 'authenticateRequest',
+      'login': username,
+      'password': password,
+    };
+
+    // Converter mapa para JSON
+    String jsonUserData = jsonEncode(userData);
+
+    // Enviar JSON via WebSocket
+    _channel.sink.add(jsonUserData);
   }
 
   @override
@@ -42,7 +88,7 @@ class _LoginPageState extends State<LoginPage> {
         title: Text('Login: ${widget.deviceIP}'),
         actions: [
           IconButton(
-            icon: Icon(Icons.exit_to_app),
+            icon: const Icon(Icons.exit_to_app),
             onPressed: () {
               Navigator.popUntil(
                 context,
@@ -96,7 +142,7 @@ class _LoginPageState extends State<LoginPage> {
               ElevatedButton(
                 onPressed: () => _login(context),
                 style: ElevatedButton.styleFrom(
-                  primary: Theme.of(context).secondaryHeaderColor,
+                  backgroundColor: Theme.of(context).secondaryHeaderColor,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12.0),
                   ),
