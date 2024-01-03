@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'light_controller.dart';
 import 'device_discovery_page.dart';
 
 void main() {
@@ -10,16 +8,13 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => LightController(),
-      child: MaterialApp(
-        title: 'Flutter Light App',
-        home: const DeviceDiscoveryPage(),
-        theme: ThemeData(
-          primaryColor: Colors.blue,
-          secondaryHeaderColor: Colors.orange,
-          fontFamily: 'Roboto',
-        ),
+    return MaterialApp(
+      title: 'Flutter Light App',
+      home: const DeviceDiscoveryPage(),
+      theme: ThemeData(
+        primaryColor: Colors.blue,
+        secondaryHeaderColor: Colors.orange,
+        fontFamily: 'Roboto',
       ),
     );
   }

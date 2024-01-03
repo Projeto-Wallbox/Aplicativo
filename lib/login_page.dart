@@ -32,7 +32,7 @@ class _LoginPageState extends State<LoginPage> {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => HomePage(),
+              builder: (context) => HomePage(deviceIP: widget.deviceIP),
             ),
           );
           print('Logado');
