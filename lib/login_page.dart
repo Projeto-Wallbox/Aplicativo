@@ -27,18 +27,27 @@ class _LoginPageState extends State<LoginPage> {
     _channel.ready.then((value) {
       _channel.stream.listen((message) {
         final data = jsonDecode(message);
-        if (data.type == "userAuthResponse" && data.status == "Ok") {
+        print(data);
+        if (data['type'] == "userAuthResponse" && data['status'] == "Ok") {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
               builder: (context) => HomePage(),
             ),
           );
+          print('Logado');
         } else {
           setState(() {
             _errorMessage = 'Usuário ou senha inválidos';
           });
         }
+      }, onError: (error) {
+        Navigator.popUntil(
+          context,
+          (route) => route.isFirst,
+        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Conexão foi perdid!')));
       });
     }).onError((error, stackTrace) {
       Navigator.popUntil(
