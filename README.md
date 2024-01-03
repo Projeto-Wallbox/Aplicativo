@@ -6,4 +6,4 @@
 
 ## Build
 
-- You can follow this steps to build this aplication: https://docs.flutter.dev/deployment/android#build-an-app-bundle
+- You can follow this steps to build this aplication: https://docs.flutter.dev/deployment/android#build-an-apk
