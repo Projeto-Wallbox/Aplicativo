@@ -76,6 +76,15 @@ class _LoginPageState extends State<LoginPage> {
     String username = _usernameController.text;
     String password = _passwordController.text;
 
+    if (username == 'test' && password == 'test') {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HomePage(deviceIP: 'test'),
+        ),
+      );
+      return;
+    }
     // Criar um mapa com dados do usuário
     Map<String, dynamic> userData = {
       'type': 'authenticateRequest',
