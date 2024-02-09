@@ -1,8 +1,6 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:wallbox_app/views/CarListScreen.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:http/http.dart' as http;
 
 class HomePage extends StatefulWidget {
   final String deviceIP;
@@ -14,67 +12,26 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  WebSocketChannel? _channel;
   bool _isLightOn = false;
   int _currentIndex = -1;
 
-  void startChannel(context) async {
-    if (widget.deviceIP == 'test') return;
-    final wsUrl = Uri.parse('ws://${widget.deviceIP}');
-    //final wsUrl = Uri.parse('ws://localhost:8765');
-    WebSocketChannel channel = WebSocketChannel.connect(wsUrl);
-    _channel = channel;
-    channel.ready.then((value) {
-      channel.stream.listen((message) {
-        final data = jsonDecode(message);
-        if (data['type'] == "toggleResponse" && data['status'] == "Ok") {
-          // setState(() {
-          //   _isLightOn = !_isLightOn;
-          // });
-        }
-      }, onError: (error) {
-        Navigator.popUntil(
-          context,
-          (route) => route.isFirst,
-        );
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Conexão foi perdid!')));
-      });
-    }).onError((error, stackTrace) {
+  void _toggle() {
+    http.post(Uri.parse('http://${widget.deviceIP}'), body: {
+      'type': 'toggleRequest',
+    }).then((response) {
+      if (response.statusCode == 200) {
+        setState(() {
+          _isLightOn = !_isLightOn;
+        });
+      }
+    }).catchError((error) {
       Navigator.popUntil(
         context,
         (route) => route.isFirst,
       );
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Erro ao estabelecer uma conexão!')));
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => startChannel(context));
-  }
-
-  @override
-  void dispose() {
-    _channel?.sink.close();
-    super.dispose();
-  }
-
-  void _toggle() {
-    // Criar um mapa com dados do usuário
-    Map<String, dynamic> userData = {
-      'type': 'toggleRequest',
-    };
-    setState(() {
-      _isLightOn = !_isLightOn;
-    });
-    // Converter mapa para JSON
-    String jsonUserData = jsonEncode(userData);
-
-    // Enviar JSON via WebSocket
-    _channel?.sink.add(jsonUserData);
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Conexão foi perdida!')));
+    }).whenComplete(() {});
   }
 
   void _changeScreen(int index) {
