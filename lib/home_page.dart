@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:wallbox_app/views/CarListScreen.dart';
 import 'package:http/http.dart' as http;
+import 'package:wallbox_app/views/ChargerConfigurationScreen.dart';
+import 'package:wallbox_app/views/CharginReportScreen.dart';
+import 'package:wallbox_app/views/ChargingScreen.dart';
+import 'package:wallbox_app/views/WifiConfigScreen.dart';
 
 class HomePage extends StatefulWidget {
   final String deviceIP;
@@ -44,6 +48,14 @@ class _HomePageState extends State<HomePage> {
     switch (_currentIndex) {
       case 0:
         return CarListScreen();
+      case 1:
+        return WifiConfigScreen();
+      case 2:
+        return ChargingReportScreen();
+      case 3:
+        return ChargerConfigurationScreen();
+      case 4:
+        return ChargingScreen();
       case -1:
       default:
         return Center(
@@ -94,10 +106,38 @@ class _HomePageState extends State<HomePage> {
               },
             ),
             ListTile(
+              title: const Text('Recarga'),
+              onTap: () {
+                Navigator.pop(context); // Fechar o drawer
+                _changeScreen(4);
+              },
+            ),
+            ListTile(
               title: const Text('Lista de Carros'),
               onTap: () {
                 Navigator.pop(context); // Fechar o drawer
                 _changeScreen(0);
+              },
+            ),
+            ListTile(
+              title: const Text('Relatorio'),
+              onTap: () {
+                Navigator.pop(context); // Fechar o drawer
+                _changeScreen(2);
+              },
+            ),
+            ListTile(
+              title: const Text('Configuração WIFI'),
+              onTap: () {
+                Navigator.pop(context); // Fechar o drawer
+                _changeScreen(1);
+              },
+            ),
+            ListTile(
+              title: const Text('Configuração Avançada'),
+              onTap: () {
+                Navigator.pop(context); // Fechar o drawer
+                _changeScreen(3);
               },
             ),
           ],
