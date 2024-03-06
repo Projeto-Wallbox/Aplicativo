@@ -55,33 +55,75 @@ class _DeviceDiscoveryPageState extends State<DeviceDiscoveryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Device Discovery'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () {
-              discoverDevices();
-            },
+        appBar: AppBar(
+          title: const Text('Device Discovery'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: () {
+                discoverDevices();
+              },
+            ),
+          ],
+        ),
+        body: GridView.builder(
+          padding: EdgeInsets.all(16),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2, // Dois quadrados por linha
+            crossAxisSpacing:
+                10.0, // Espaçamento entre os quadrados na horizontal
+            mainAxisSpacing: 10.0, // Espaçamento entre os quadrados na vertical
+            childAspectRatio: 1.0, // Proporção da largura para a altura
           ),
-        ],
-      ),
-      body: ListView.builder(
-        itemCount: devices.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            title: Text(devices[index]),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => LoginPage(deviceIP: devices[index]),
+          itemCount: devices.length + 1, // Adiciona 1 para o quadrado extra
+          itemBuilder: (context, index) {
+            if (index == devices.length) {
+              // Se for o último item, retorna o quadrado extra com o símbolo de adição
+              return GestureDetector(
+                onTap: () {
+                  // Faça o que desejar ao tocar no quadrado extra
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10.0),
+                    color: Colors.grey[200],
+                  ),
+                  child: const Icon(
+                    Icons.add,
+                    size: 40.0,
+                    color: Colors.blue,
+                  ),
                 ),
               );
-            },
-          );
-        },
-      ),
-    );
+            } else {
+              // Se não for o último item, retorna o quadrado do dispositivo
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => LoginPage(deviceIP: devices[index]),
+                    ),
+                  );
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10.0),
+                    color: Colors.grey[200],
+                  ),
+                  child: Center(
+                    child: Text(
+                      devices[index],
+                      style: const TextStyle(
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }
+          },
+        ));
   }
 }

@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:wallbox_app/views/ChargerConfigurationScreen.dart';
 import 'package:wallbox_app/views/CharginReportScreen.dart';
 import 'package:wallbox_app/views/ChargingScreen.dart';
+import 'package:wallbox_app/views/FAQScreen.dart';
 import 'package:wallbox_app/views/WifiConfigScreen.dart';
 
 class HomePage extends StatefulWidget {
@@ -56,6 +57,8 @@ class _HomePageState extends State<HomePage> {
         return ChargerConfigurationScreen();
       case 4:
         return ChargingScreen();
+      case 5:
+        return FAQScreen();
       case -1:
       default:
         return Center(
@@ -124,6 +127,13 @@ class _HomePageState extends State<HomePage> {
               onTap: () {
                 Navigator.pop(context); // Fechar o drawer
                 _changeScreen(2);
+              },
+            ),
+            ListTile(
+              title: const Text('FAQ'),
+              onTap: () {
+                Navigator.pop(context); // Fechar o drawer
+                _changeScreen(5);
               },
             ),
             ListTile(

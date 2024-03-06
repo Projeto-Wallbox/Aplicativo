@@ -1,19 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wallbox_app/database.dart';
 
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: CarListScreen(),
-    );
-  }
-}
-
 class CarListScreen extends StatefulWidget {
   @override
   _CarListScreenState createState() => _CarListScreenState();
@@ -146,6 +133,7 @@ class _CarFormScreenState extends State<CarFormScreen> {
   late TextEditingController _nameController;
   late TextEditingController _modelController;
   late TextEditingController _yearController;
+  late TextEditingController _bateryController;
 
   @override
   void initState() {
@@ -156,6 +144,8 @@ class _CarFormScreenState extends State<CarFormScreen> {
         TextEditingController(text: widget.editingCar?.model ?? '');
     _yearController =
         TextEditingController(text: widget.editingCar?.year?.toString() ?? '');
+    _bateryController = TextEditingController(
+        text: widget.editingCar?.bateryCapacity?.toString() ?? '');
   }
 
   @override
@@ -172,23 +162,29 @@ class _CarFormScreenState extends State<CarFormScreen> {
           children: [
             TextField(
               controller: _nameController,
-              decoration: InputDecoration(labelText: 'Nome'),
+              decoration: const InputDecoration(labelText: 'Nome'),
             ),
             TextField(
               controller: _modelController,
-              decoration: InputDecoration(labelText: 'Modelo'),
+              decoration: const InputDecoration(labelText: 'Modelo'),
             ),
             TextField(
               controller: _yearController,
-              decoration: InputDecoration(labelText: 'Ano'),
+              decoration: const InputDecoration(labelText: 'Ano'),
               keyboardType: TextInputType.number,
             ),
-            SizedBox(height: 16.0),
+            TextField(
+              controller: _bateryController,
+              decoration: const InputDecoration(
+                  labelText: 'Capacidade da Bateria (KWh)'),
+              keyboardType: TextInputType.number,
+            ),
+            const SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: () {
                 _saveCar();
               },
-              child: Text('Salvar'),
+              child: const Text('Salvar'),
             ),
           ],
         ),
@@ -200,8 +196,9 @@ class _CarFormScreenState extends State<CarFormScreen> {
     String name = _nameController.text.trim();
     String model = _modelController.text.trim();
     int? year = int.tryParse(_yearController.text.trim());
+    int? batery = int.tryParse(_bateryController.text.trim());
 
-    if (name.isNotEmpty && model.isNotEmpty && year != null) {
+    if (name.isNotEmpty && model.isNotEmpty && year != null && batery != null) {
       Car newCar;
       if (widget.editingCar != null) {
         newCar = Car(
@@ -209,6 +206,7 @@ class _CarFormScreenState extends State<CarFormScreen> {
           name: name,
           model: model,
           year: year,
+          bateryCapacity: batery,
         );
       } else {
         newCar = Car(
@@ -216,6 +214,7 @@ class _CarFormScreenState extends State<CarFormScreen> {
           name: name,
           model: model,
           year: year,
+          bateryCapacity: batery,
         );
       }
 

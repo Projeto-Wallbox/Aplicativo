@@ -7,10 +7,11 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:sqlite3/sqlite3.dart';
 import 'package:sqlite3_flutter_libs/sqlite3_flutter_libs.dart';
+import 'package:wallbox_app/models/Stations.dart';
 
 part 'database.g.dart';
 
-@DriftDatabase(tables: [Cars])
+@DriftDatabase(tables: [Cars, Stations])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
@@ -24,7 +25,7 @@ class AppDatabase extends _$AppDatabase {
 
   @override
   // TODO: implement schemaVersion
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 }
 
 LazyDatabase _openConnection() {

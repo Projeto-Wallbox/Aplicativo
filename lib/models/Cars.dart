@@ -6,4 +6,5 @@ class Cars extends Table {
   TextColumn get name => text().nullable()();
   TextColumn get model => text().nullable()();
   IntColumn get year => integer().nullable()();
+  IntColumn get bateryCapacity => integer().nullable()();
 }
