@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:wallbox_app/home_page.dart';
 import 'package:http/http.dart' as http;
+import 'package:wallbox_app/services/UserSessionService.dart';
 
 class LoginPage extends StatefulWidget {
   final String deviceIP;
@@ -18,6 +20,8 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
   String _errorMessage = '';
 
+  final UserSessionService userService = UserSessionService.instance();
+
   void _login(BuildContext context) {
     // Lógica de login aqui (pode ser implementada posteriormente)
     String username = _usernameController.text;
@@ -31,13 +35,20 @@ class _LoginPageState extends State<LoginPage> {
       );
       return;
     }
-    http.post(Uri.parse('http://${widget.deviceIP}'), body: {
-      'type': 'authenticateRequest',
-      'login': username,
-      'password': password,
+    if (widget.deviceIP.isEmpty) {
+      return;
+    }
+    http.get(Uri.parse('http://${widget.deviceIP}/users/self'), headers: {
+      HttpHeaders.authorizationHeader:
+          'Basic ${base64Encode(utf8.encode('$username:$password'))}'
     }).then((response) {
-      var data = jsonDecode(response.body);
-      if (data['type'] == "userAuthResponse" && data['status'] == "Ok") {
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body);
+        userService.setUser(username);
+        userService.setPassword(password);
+        userService.setKey('ip', widget.deviceIP);
+        userService.setKey('userId', data.id.toString());
+        userService.setKey('permission', data.permission);
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
