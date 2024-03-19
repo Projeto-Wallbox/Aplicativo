@@ -14,7 +14,7 @@ class _ChargingScreenState extends State<ChargingScreen> {
   Car? selectedCar; // Carro selecionado por padrão
 
   double currentPower = 0;
-  int chargingTime = 0;
+  String current = '0';
   double totalConsumption = 0;
 
   bool _isLightOn = false;
@@ -51,6 +51,7 @@ class _ChargingScreenState extends State<ChargingScreen> {
       setState(() {
         currentPower = double.parse(result['power']!);
         totalConsumption = double.parse(result['energy']!);
+        current = double.parse(result['current']!).toStringAsFixed(2);
       });
 
       if (!refreshing) return;
@@ -58,12 +59,13 @@ class _ChargingScreenState extends State<ChargingScreen> {
         getCurrentValue();
       });
     }).catchError((error) {
+      print(error);
       Navigator.popUntil(
         context,
         (route) => route.isFirst,
       );
       ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Conexão foi perdida!')));
+          .showSnackBar(const SnackBar(content: Text('Erro aq!')));
     });
   }
 
@@ -143,11 +145,11 @@ class _ChargingScreenState extends State<ChargingScreen> {
                   ),
                   const SizedBox(height: 20),
                   const Text(
-                    'Tempo de Carga Até o Momento:',
+                    'Corrente:',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    '$chargingTime minutos',
+                    '$current A',
                     style: const TextStyle(fontSize: 18),
                   ),
                   const SizedBox(height: 20),

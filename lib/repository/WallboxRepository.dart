@@ -33,14 +33,35 @@ class WallboxRepository {
         'current': current.toString(),
         'voltage': voltage.toString(),
       };
-    } else {
-      return {
-        'energy': '0',
-        'power': '0',
-        'current': '0',
-        'voltage': '0',
-      };
+    } else if (ipAdd.isNotEmpty) {
+      var response =
+          await http.post(Uri.parse('http://${ipAdd}/networkConnect'),
+              body: {
+                'type': 'MeterValues',
+              },
+              headers: service.getHeader());
+
+      if (response.statusCode == 200) {
+        var body = jsonDecode(response.body);
+        var transaction = body.transactionId;
+        for (var obj in body.meterValue) {
+          var sample = obj.sampledValue;
+
+          return {
+            'energy': sample.energy,
+            'power': sample.power,
+            'current': sample.current,
+            'voltage': sample.voltage,
+          };
+        }
+      }
     }
+    return {
+      'energy': '0',
+      'power': '0',
+      'current': '0',
+      'voltage': '0',
+    };
   }
 
   Future<bool> setWifi(String ssid, String password) async {
