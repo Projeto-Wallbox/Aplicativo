@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 class UserSessionService {
   static const String _userKey = 'user';
   static const String _passwordKey = 'password';
@@ -8,6 +11,13 @@ class UserSessionService {
     UserSessionService instance = _instance ?? UserSessionService();
     _instance ??= instance;
     return instance;
+  }
+
+  Map<String, String> getHeader() {
+    return {
+      HttpHeaders.authorizationHeader:
+          'Basic ${base64Encode(utf8.encode('${getUser()}:$getPassword()'))}'
+    };
   }
 
   void setKey(String key, String val) {

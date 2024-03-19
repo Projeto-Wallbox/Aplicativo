@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:wallbox_app/repository/WallboxRepository.dart';
 import 'package:wifi_flutter/wifi_flutter.dart';
 
 class WifiConfigScreen extends StatefulWidget {
@@ -10,8 +11,9 @@ class WifiConfigScreen extends StatefulWidget {
 class _WifiConfigScreenState extends State<WifiConfigScreen> {
   final _formKey = GlobalKey<FormState>();
   TextEditingController _passwordController = TextEditingController();
-  List<WifiNetwork> _wifiNetworks = [];
-  WifiNetwork? _selectedWifi;
+  List<String> _wifiNetworks = [];
+  String? _selectedWifi;
+  WallboxRepository repository = WallboxRepository.instance();
 
   @override
   void initState() {
@@ -20,7 +22,14 @@ class _WifiConfigScreenState extends State<WifiConfigScreen> {
   }
 
   Future<void> _getWifiNetworks() async {
-    _wifiNetworks.add(new WifiNetwork('teste', 0, true));
+    var list = await repository.avaliableNetworks();
+
+    setState(() {
+      for (var element in list) {
+        print(element);
+        _wifiNetworks.add(element);
+      }
+    });
   }
 
   @override
@@ -33,14 +42,14 @@ class _WifiConfigScreenState extends State<WifiConfigScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              DropdownButtonFormField<WifiNetwork>(
-                items: _wifiNetworks.map((WifiNetwork network) {
-                  return DropdownMenuItem<WifiNetwork>(
+              DropdownButtonFormField<String>(
+                items: _wifiNetworks.map((String network) {
+                  return DropdownMenuItem<String>(
                     value: network,
-                    child: Text(network.ssid),
+                    child: Text(network),
                   );
                 }).toList(),
-                onChanged: (WifiNetwork? selectedWifi) {
+                onChanged: (String? selectedWifi) {
                   if (selectedWifi != null) {
                     setState(() {
                       _selectedWifi = selectedWifi;
@@ -72,12 +81,24 @@ class _WifiConfigScreenState extends State<WifiConfigScreen> {
                 child: ElevatedButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
-                      // Salvar as informações (ainda não implementado)
-                      // Você pode acessar os valores digitados pelo usuário através de _selectedWifi e _passwordController.text
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text('Configurações salvas com sucesso!')),
-                      );
+                      repository
+                          .setWifi(
+                              _selectedWifi!, _passwordController.value.text)
+                          .then((result) {
+                        if (result) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content:
+                                    Text('Configurações salvas com sucesso!')),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text(
+                                    'Não foi possivel salvar a configuração.')),
+                          );
+                        }
+                      });
                     }
                   },
                   child: const Text('Salvar'),

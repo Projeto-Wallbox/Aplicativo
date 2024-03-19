@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wallbox_app/database.dart';
+import 'package:wallbox_app/repository/WallboxRepository.dart';
 
 class ChargingScreen extends StatefulWidget {
   @override
@@ -15,6 +16,26 @@ class _ChargingScreenState extends State<ChargingScreen> {
   final double totalConsumption =
       64; // Consumo total até o momento (em watts/hora)
 
+  bool _isLightOn = false;
+  WallboxRepository repository = WallboxRepository.instance();
+
+  void _toggle() {
+    repository.toggleState().then((val) {
+      if (val) {
+        setState(() {
+          _isLightOn = !_isLightOn;
+        });
+      }
+    }).catchError((error) {
+      Navigator.popUntil(
+        context,
+        (route) => route.isFirst,
+      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Conexão foi perdida!')));
+    });
+  }
+
   void loadCars() async {
     final database = AppDatabase.instance();
     final carsList = await database.select(database.cars).get();
@@ -26,6 +47,9 @@ class _ChargingScreenState extends State<ChargingScreen> {
   @override
   void initState() {
     loadCars();
+    repository
+        .lightState()
+        .then((value) => setState((() => _isLightOn = value)));
     super.initState();
   }
 
@@ -53,6 +77,12 @@ class _ChargingScreenState extends State<ChargingScreen> {
                     );
                   }).toList(),
                 ),
+                Switch(
+                  value: _isLightOn,
+                  onChanged: (value) {
+                    _toggle();
+                  },
+                ),
               ],
             ),
             const SizedBox(height: 20),
@@ -62,7 +92,7 @@ class _ChargingScreenState extends State<ChargingScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   ColorFiltered(
-                    colorFilter: currentPower != 0
+                    colorFilter: _isLightOn
                         ? const ColorFilter.mode(Colors.white, BlendMode.darken)
                         : const ColorFilter.mode(
                             Colors.grey, BlendMode.saturation),

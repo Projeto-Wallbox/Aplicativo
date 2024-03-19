@@ -17,27 +17,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  bool _isLightOn = false;
   int _currentIndex = -1;
-
-  void _toggle() {
-    http.post(Uri.parse('http://${widget.deviceIP}'), body: {
-      'type': 'toggleRequest',
-    }).then((response) {
-      if (response.statusCode == 200) {
-        setState(() {
-          _isLightOn = !_isLightOn;
-        });
-      }
-    }).catchError((error) {
-      Navigator.popUntil(
-        context,
-        (route) => route.isFirst,
-      );
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Conexão foi perdida!')));
-    }).whenComplete(() {});
-  }
 
   void _changeScreen(int index) {
     setState(() {
@@ -61,20 +41,21 @@ class _HomePageState extends State<HomePage> {
         return FAQScreen();
       case -1:
       default:
-        return Center(
-            child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('The wallbox is turned ${_isLightOn ? 'On' : 'Off'}'),
-            const SizedBox(height: 20),
-            Switch(
-              value: _isLightOn,
-              onChanged: (value) {
-                _toggle();
-              },
-            ),
-          ],
-        )); // homepage
+        return ChargingScreen();
+      // return Center(
+      //     child: Column(
+      //   mainAxisAlignment: MainAxisAlignment.center,
+      //   children: [
+      //     Text('The wallbox is turned ${_isLightOn ? 'On' : 'Off'}'),
+      //     const SizedBox(height: 20),
+      //     Switch(
+      //       value: _isLightOn,
+      //       onChanged: (value) {
+      //         _toggle();
+      //       },
+      //     ),
+      //   ],
+      // )); // homepage
     }
   }
 
@@ -108,13 +89,13 @@ class _HomePageState extends State<HomePage> {
                 _changeScreen(-1);
               },
             ),
-            ListTile(
-              title: const Text('Recarga'),
-              onTap: () {
-                Navigator.pop(context); // Fechar o drawer
-                _changeScreen(4);
-              },
-            ),
+            // ListTile(
+            //   title: const Text('Recarga'),
+            //   onTap: () {
+            //     Navigator.pop(context); // Fechar o drawer
+            //     _changeScreen(4);
+            //   },
+            // ),
             ListTile(
               title: const Text('Lista de Carros'),
               onTap: () {
