@@ -7,6 +7,13 @@ import 'package:drift/drift.dart';
 import 'package:wallbox_app/services/UserSessionService.dart';
 import 'package:http/http.dart' as http;
 
+class User {
+  String name;
+  String email;
+
+  User({required this.name, required this.email});
+}
+
 class WallboxRepository {
   String ipAdd;
   late UserSessionService service;
@@ -21,7 +28,7 @@ class WallboxRepository {
   }
 
   Future<Map<String, String>> getCurrentMetetValue() async {
-    if (ipAdd.isEmpty && await lightState()) {
+    if (ipAdd.isEmpty && await wallboxState()) {
       var rng = Random();
 
       var voltage = 218 + rng.nextDouble() * 3;
@@ -120,7 +127,8 @@ class WallboxRepository {
 
   Future<bool> toggleState() async {
     if (ipAdd.isEmpty) {
-      service.setKey('test_light_state', await lightState() ? 'false' : 'true');
+      service.setKey(
+          'test_light_state', await wallboxState() ? 'false' : 'true');
       return true;
     } else {
       var response = await http.post(Uri.parse('http://${ipAdd}'),
@@ -135,7 +143,7 @@ class WallboxRepository {
     }
   }
 
-  Future<bool> lightState() async {
+  Future<bool> wallboxState() async {
     if (ipAdd.isEmpty) {
       return (service.getKey('test_light_state') ?? 'false') == 'true';
     } else {

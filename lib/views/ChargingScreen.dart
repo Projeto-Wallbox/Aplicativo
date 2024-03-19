@@ -75,7 +75,7 @@ class _ChargingScreenState extends State<ChargingScreen> {
     refreshing = true;
     getCurrentValue();
     repository
-        .lightState()
+        .wallboxState()
         .then((value) => setState((() => _isLightOn = value)));
     super.initState();
   }

@@ -1,11 +1,5 @@
 import 'package:flutter/material.dart';
-
-class User {
-  String name;
-  String email;
-
-  User({required this.name, required this.email});
-}
+import 'package:wallbox_app/repository/WallboxRepository.dart';
 
 class UserManagementScreen extends StatefulWidget {
   const UserManagementScreen({super.key});
@@ -19,6 +13,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
     User(name: 'João', email: 'joao@example.com'),
     User(name: 'Maria', email: 'maria@example.com'),
   ];
+  WallboxRepository repository = WallboxRepository.instance();
 
   TextEditingController nameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
