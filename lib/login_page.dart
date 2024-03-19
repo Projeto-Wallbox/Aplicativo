@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:wallbox_app/home_page.dart';
 import 'package:http/http.dart' as http;
+import 'package:wallbox_app/repository/WallboxRepository.dart';
 import 'package:wallbox_app/services/UserSessionService.dart';
 
 class LoginPage extends StatefulWidget {
@@ -26,29 +27,11 @@ class _LoginPageState extends State<LoginPage> {
     // Lógica de login aqui (pode ser implementada posteriormente)
     String username = _usernameController.text;
     String password = _passwordController.text;
-    if (username == 'test' && password == 'test') {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => HomePage(deviceIP: 'test'),
-        ),
-      );
-      return;
-    }
-    if (widget.deviceIP.isEmpty) {
-      return;
-    }
-    http.get(Uri.parse('http://${widget.deviceIP}/users/self'), headers: {
-      HttpHeaders.authorizationHeader:
-          'Basic ${base64Encode(utf8.encode('$username:$password'))}'
-    }).then((response) {
-      if (response.statusCode == 200) {
-        var data = jsonDecode(response.body);
-        userService.setUser(username);
-        userService.setPassword(password);
-        userService.setKey('ip', widget.deviceIP);
-        userService.setKey('userId', data.id.toString());
-        userService.setKey('permission', data.permission);
+
+    WallboxRepository wallboxRepository =
+        WallboxRepository(ipAdd: widget.deviceIP);
+    wallboxRepository.login(username, password).then((status) {
+      if (status) {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -61,13 +44,14 @@ class _LoginPageState extends State<LoginPage> {
         });
       }
     }).catchError((error) {
+      print(error);
       Navigator.popUntil(
         context,
         (route) => route.isFirst,
       );
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Erro ao estabelecer uma conexão!')));
-    }).whenComplete(() {});
+    });
   }
 
   @override
