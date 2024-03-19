@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:wallbox_app/database.dart';
 import 'package:wallbox_app/repository/WallboxRepository.dart';
@@ -11,10 +13,9 @@ class _ChargingScreenState extends State<ChargingScreen> {
   List<Car> _carsList = List.empty();
   Car? selectedCar; // Carro selecionado por padrão
 
-  final double currentPower = 100; // Potência consumida atual (em watts)
-  final int chargingTime = 12; // Tempo de carga até o momento (em minutos)
-  final double totalConsumption =
-      64; // Consumo total até o momento (em watts/hora)
+  double currentPower = 0;
+  int chargingTime = 0;
+  double totalConsumption = 0;
 
   bool _isLightOn = false;
   WallboxRepository repository = WallboxRepository.instance();
@@ -41,6 +42,23 @@ class _ChargingScreenState extends State<ChargingScreen> {
     final carsList = await database.select(database.cars).get();
     setState(() {
       _carsList = carsList;
+    });
+  }
+
+  void getCurrentValue() {
+    repository.getCurrentMetetValue().then((result) {
+      currentPower = double.parse(result['power']!);
+      totalConsumption = double.parse(result['energy']!);
+
+      sleep(Duration(seconds: 1));
+      getCurrentValue();
+    }).catchError((error) {
+      Navigator.popUntil(
+        context,
+        (route) => route.isFirst,
+      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Conexão foi perdida!')));
     });
   }
 

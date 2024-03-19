@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:drift/drift.dart';
 import 'package:wallbox_app/services/UserSessionService.dart';
@@ -17,6 +18,29 @@ class WallboxRepository {
 
   WallboxRepository({required this.ipAdd}) {
     service = UserSessionService.instance();
+  }
+
+  Future<Map<String, String>> getCurrentMetetValue() async {
+    if (ipAdd.isEmpty && await lightState()) {
+      var rng = Random();
+
+      var voltage = 218 + rng.nextDouble() * 3;
+      var current = 19 + rng.nextDouble() * 1.5;
+
+      return {
+        'energy': 100.toString(),
+        'power': (current * voltage).toString(),
+        'current': current.toString(),
+        'voltage': voltage.toString(),
+      };
+    } else {
+      return {
+        'energy': '0',
+        'power': '0',
+        'current': '0',
+        'voltage': '0',
+      };
+    }
   }
 
   Future<bool> setWifi(String ssid, String password) async {
