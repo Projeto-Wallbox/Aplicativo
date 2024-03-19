@@ -118,8 +118,8 @@ class _ChargerConfigurationScreenState
                 },
                 child: Text('Salvar'),
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.blue,
-                  onPrimary: Colors.white,
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.blue,
                   padding: EdgeInsets.symmetric(vertical: 15),
                 ),
               ),

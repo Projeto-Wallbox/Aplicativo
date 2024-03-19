@@ -18,6 +18,7 @@ class _ChargingScreenState extends State<ChargingScreen> {
   double totalConsumption = 0;
 
   bool _isLightOn = false;
+  bool refreshing = false;
   WallboxRepository repository = WallboxRepository.instance();
 
   void _toggle() {
@@ -47,11 +48,15 @@ class _ChargingScreenState extends State<ChargingScreen> {
 
   void getCurrentValue() {
     repository.getCurrentMetetValue().then((result) {
-      currentPower = double.parse(result['power']!);
-      totalConsumption = double.parse(result['energy']!);
+      setState(() {
+        currentPower = double.parse(result['power']!);
+        totalConsumption = double.parse(result['energy']!);
+      });
 
-      sleep(Duration(seconds: 1));
-      getCurrentValue();
+      if (!refreshing) return;
+      Future.delayed(const Duration(seconds: 1), () {
+        getCurrentValue();
+      });
     }).catchError((error) {
       Navigator.popUntil(
         context,
@@ -65,10 +70,18 @@ class _ChargingScreenState extends State<ChargingScreen> {
   @override
   void initState() {
     loadCars();
+    refreshing = true;
+    getCurrentValue();
     repository
         .lightState()
         .then((value) => setState((() => _isLightOn = value)));
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    refreshing = false;
+    super.dispose();
   }
 
   @override

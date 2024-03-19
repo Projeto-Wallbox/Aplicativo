@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:wallbox_app/views/CarListScreen.dart';
-import 'package:http/http.dart' as http;
 import 'package:wallbox_app/views/ChargerConfigurationScreen.dart';
 import 'package:wallbox_app/views/CharginReportScreen.dart';
 import 'package:wallbox_app/views/ChargingScreen.dart';
 import 'package:wallbox_app/views/FAQScreen.dart';
+import 'package:wallbox_app/views/UserManagementScreen.dart';
 import 'package:wallbox_app/views/WifiConfigScreen.dart';
 
 class HomePage extends StatefulWidget {
@@ -39,6 +39,8 @@ class _HomePageState extends State<HomePage> {
         return ChargingScreen();
       case 5:
         return FAQScreen();
+      case 6:
+        return UserManagementScreen();
       case -1:
       default:
         return ChargingScreen();
@@ -101,6 +103,13 @@ class _HomePageState extends State<HomePage> {
               onTap: () {
                 Navigator.pop(context); // Fechar o drawer
                 _changeScreen(0);
+              },
+            ),
+            ListTile(
+              title: const Text('Usuários'),
+              onTap: () {
+                Navigator.pop(context); // Fechar o drawer
+                _changeScreen(6);
               },
             ),
             ListTile(
